@@ -1,49 +1,67 @@
 import java.util.Scanner;
 
-public class FCFS {
-    static final int MAX = 10;
+public class Main {
+    public static void sort(int[] s_at, int[] s_bt, int n) {
+        int temp;
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = i + 1; j < n; j++) {
+                if (s_at[i] > s_at[j]) {
+                    temp = s_at[i];
+                    s_at[i] = s_at[j];
+                    s_at[j] = temp;
 
-    public static void fcfs(int n, int[] at, int[] bt) {
-        int[] waitingTime = new int[MAX];
-        int[] turnAroundTime = new int[MAX];
-        int[] temp = new int[MAX];
-        temp[0] = 0;
-        double awt = 0, atat = 0;
-
-        System.out.println("Processes\tArrivalTime\tBurstTime\tWaitingTime\tTAT");
-        for (int i = 0; i < n; i++) {
-            waitingTime[i] = 0;
-            turnAroundTime[i] = 0;
-            temp[i + 1] = temp[i] + bt[i];
-            waitingTime[i] = temp[i] - at[i];
-            turnAroundTime[i] = waitingTime[i] + bt[i];
-            System.out.println((i + 1) + "\t\t" + at[i] + "\t\t" + bt[i] + "\t\t" + waitingTime[i] + "\t\t" + turnAroundTime[i]);
-            awt = awt + waitingTime[i];
-            atat = atat + turnAroundTime[i];
+                    temp = s_bt[i];
+                    s_bt[i] = s_bt[j];
+                    s_bt[j] = temp;
+                }
+            }
         }
-        System.out.println("\nAverage waiting time = " + awt / n);
-        System.out.println("Average Turn Around time = " + atat / n);
     }
 
     public static void main(String[] args) {
-        int n;
-        int[] arrivalTime = new int[MAX];
-        int[] burstTime = new int[MAX];
-
-        Scanner sc = new Scanner(System.in);
-        System.out.print("Enter the Number of processes: ");
-        n = sc.nextInt();
-
-        System.out.print("Enter the arrival Time of all processes: ");
-        for (int i = 0; i < n; i++) {
-            arrivalTime[i] = sc.nextInt();
+        Scanner scanner = new Scanner(System.in);
+        int n, i;
+        float avg_tat = 0, avg_wt = 0;
+        System.out.print("Enter the number of processes: ");
+        n = scanner.nextInt();
+        int[] at = new int[n];
+        int[] bt = new int[n];
+        int[] ct = new int[n];
+        int[] tat = new int[n];
+        int[] wt = new int[n];
+        for (i = 0; i < n; i++) {
+            System.out.printf("Enter arrival time and burst time for process %d: ", i + 1);
+            at[i] = scanner.nextInt();
+            bt[i] = scanner.nextInt();
         }
-
-        System.out.print("Enter the burst time of all processes: ");
-        for (int i = 0; i < n; i++) {
-            burstTime[i] = sc.nextInt();
+        int currentTime = 0;
+        int[] s_at = new int[n];
+        int[] s_bt = new int[n];
+        for (i = 0; i < n; i++) {
+            s_at[i] = at[i];
+            s_bt[i] = bt[i];
         }
-
-        fcfs(n, arrivalTime, burstTime);
+        sort(s_at, s_bt, n);
+        for (i = 0; i < n; i++) {
+            if (s_at[i] <= currentTime) {
+                wt[i] = currentTime - s_at[i];
+                currentTime += s_bt[i];
+                ct[i] = currentTime;
+                tat[i] = ct[i] - at[i];
+            } else {
+                currentTime++;
+                i--;
+            }
+        }
+        System.out.println("\nProcess\tArrival Time\tBurst Time\tCompletion Time\tTurnaround Time\tWaiting Time");
+        for (i = 0; i < n; i++) {
+            System.out.printf("%d\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", i + 1, at[i], bt[i], ct[i], tat[i], wt[i]);
+            avg_tat += tat[i];
+            avg_wt += wt[i];
+        }
+        avg_tat /= n;
+        avg_wt /= n;
+        System.out.printf("Average Turnaround Time: %.2f\n", avg_tat);
+        System.out.printf("Average Waiting Time: %.2f\n", avg_wt);
     }
 }
